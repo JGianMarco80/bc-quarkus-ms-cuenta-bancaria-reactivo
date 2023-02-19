@@ -1,9 +1,10 @@
 package com.nttd.ms.cuenta.bancaria.service;
 
 import com.nttd.ms.cuenta.bancaria.dto.CuentaBancariaMovimiento;
+import io.smallrye.mutiny.Uni;
 
 public interface CuentaBancariaService {
 
-    CuentaBancariaMovimiento movimientoCuentaBancaria(String numeroCuenta);
+    Uni<CuentaBancariaMovimiento> movimientoCuentaBancaria(String numeroCuenta);
 
 }

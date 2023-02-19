@@ -2,6 +2,7 @@ package com.nttd.ms.cuenta.bancaria.resource;
 
 import com.nttd.ms.cuenta.bancaria.dto.CuentaBancariaMovimiento;
 import com.nttd.ms.cuenta.bancaria.service.CuentaBancariaService;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -16,7 +17,8 @@ public class CuentaBancariaResource {
 
     @GET
     @Path("/movimiento-cuenta-bancaria")
-    public CuentaBancariaMovimiento movimientoCuentaBancaria(@QueryParam("numeroCuenta") String numeroCuenta) {
+    public Uni<CuentaBancariaMovimiento> movimientoCuentaBancaria(@QueryParam("numeroCuenta") String numeroCuenta) {
         return cuentaBancariaService.movimientoCuentaBancaria(numeroCuenta);
     }
+
 }
