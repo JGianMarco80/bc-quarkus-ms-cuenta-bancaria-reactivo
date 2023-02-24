@@ -11,6 +11,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import java.util.List;
 
@@ -26,6 +27,35 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
     @Override
     public Uni<CuentaBancariaMovimiento> movimientoCuentaBancaria(String numeroCuenta) {
         return this.buscarMovimientos(numeroCuenta);
+    }
+
+    @Override
+    public Uni<Double> emitirRecibirPAgo(String numeroTarjeta, String operacion, Double monto) {
+        return this.findAllActive()
+                .select()
+                .when(cuentaBancaria -> Uni.createFrom().item(cuentaBancaria.getNumeroTarjeta().equals(numeroTarjeta)))
+                .toUni()
+                .onItem()
+                .ifNull()
+                .failWith(() -> new NotFoundException("No existe una cuenta bancaria " +
+                        "con el siguiente numero de tarjeta " + numeroTarjeta))
+                .onItem()
+                .transform(cuentaBancaria -> {
+                    if (operacion.equals("1")) { //Deposito
+                        cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() + monto);
+                    }
+                    if (operacion.equals("2")) { //Retiro
+                        if (cuentaBancaria.getSaldo() > monto) {
+                            cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() - monto);
+                        } else {
+                            throw new NotFoundException("No cuenta con suficiente dinero en su cuenta bancaria.");
+                        }
+                    }
+                    return cuentaBancaria;
+                })
+                .call(cuentaBancaria -> repository.update(cuentaBancaria))
+                .onItem()
+                .transformToUni(cuentaBancaria -> Uni.createFrom().item(cuentaBancaria.getSaldo()));
     }
 
     private Multi<CuentaBancaria> findAllActive(){

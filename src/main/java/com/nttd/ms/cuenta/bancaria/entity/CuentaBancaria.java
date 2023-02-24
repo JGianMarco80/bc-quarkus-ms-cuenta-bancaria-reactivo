@@ -33,4 +33,6 @@ public class CuentaBancaria {
     private String tarjetaId;
 
     private String estado;
+
+    private String numeroTarjeta;
 }

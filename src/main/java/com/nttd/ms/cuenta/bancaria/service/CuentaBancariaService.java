@@ -7,4 +7,6 @@ public interface CuentaBancariaService {
 
     Uni<CuentaBancariaMovimiento> movimientoCuentaBancaria(String numeroCuenta);
 
+    Uni<Double> emitirRecibirPAgo(String numeroTarjeta, String operacion, Double monto);
+
 }
