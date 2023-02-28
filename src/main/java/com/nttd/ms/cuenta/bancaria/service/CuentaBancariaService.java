@@ -9,4 +9,6 @@ public interface CuentaBancariaService {
 
     Uni<Double> emitirRecibirPAgo(String numeroTarjeta, String operacion, Double monto);
 
+    Uni<Double> emitirRecibirPagoCB(String numeroCuenta, String operacion, Double monto);
+
 }

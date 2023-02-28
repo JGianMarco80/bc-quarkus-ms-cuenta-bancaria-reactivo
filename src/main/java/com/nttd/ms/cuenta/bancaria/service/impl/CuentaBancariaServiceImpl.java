@@ -58,6 +58,35 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
                 .transformToUni(cuentaBancaria -> Uni.createFrom().item(cuentaBancaria.getSaldo()));
     }
 
+    @Override
+    public Uni<Double> emitirRecibirPagoCB(String numeroCuenta, String operacion, Double monto) {
+        return this.findAllActive()
+                .select()
+                .when(cuentaBancaria -> Uni.createFrom().item(cuentaBancaria.getNumeroCuenta().equals(numeroCuenta)))
+                .toUni()
+                .onItem()
+                .ifNull()
+                .failWith(() -> new NotFoundException("No existe una cuenta bancaria " +
+                        "con el siguiente numero de cuenta " + numeroCuenta))
+                .onItem()
+                .transform(cuentaBancaria -> {
+                    if (operacion.equals("1")) { //Deposito
+                        cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() + monto);
+                    }
+                    if (operacion.equals("2")) { //Retiro
+                        if (cuentaBancaria.getSaldo() > monto) {
+                            cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() - monto);
+                        } else {
+                            throw new NotFoundException("No cuenta con suficiente dinero en su cuenta bancaria.");
+                        }
+                    }
+                    return cuentaBancaria;
+                })
+                .call(cuentaBancaria -> repository.update(cuentaBancaria))
+                .onItem()
+                .transformToUni(cuentaBancaria -> Uni.createFrom().item(cuentaBancaria.getSaldo()));
+    }
+
     private Multi<CuentaBancaria> findAllActive(){
         return repository.listAll().onItem()
                 .<CuentaBancaria>disjoint().map(cuentaBancaria -> {

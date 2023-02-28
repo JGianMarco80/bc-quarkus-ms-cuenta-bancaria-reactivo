@@ -31,4 +31,13 @@ public class CuentaBancariaResource {
         return cuentaBancariaService.emitirRecibirPAgo(numeroTarjeta, operacion, monto);
     }
 
+    @PUT
+    @Transactional
+    @Path("/actualizar-saldo-cb")
+    public Uni<Double> emitirRecibirPagoCB(@QueryParam("numeroCuenta") String numeroCuenta,
+                                         @QueryParam("operacion") String operacion,
+                                         @QueryParam("monto")  Double monto) {
+        return cuentaBancariaService.emitirRecibirPagoCB(numeroCuenta, operacion, monto);
+    }
+
 }
